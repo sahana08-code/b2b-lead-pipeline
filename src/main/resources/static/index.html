@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Pipeline | B2B Lead Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b1120;
+    --panel: #111a2e;
+    --panel-light: #16213a;
+    --border: rgba(255,255,255,0.08);
+    --border-light: rgba(255,255,255,0.14);
+    --text: #eef2f8;
+    --text-dim: #8b96ab;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79,140,255,0.35);
+    --teal: #14b8a6;
+    --amber: #f5a524;
+    --rose: #f43f5e;
+    --emerald: #22c55e;
+    --sidebar-w: 220px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: radial-gradient(circle at 10% 0%, #131c33 0%, var(--bg) 55%);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+  h1, h2, h3 { font-family: 'Manrope', 'Inter', sans-serif; }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: rgba(17,26,46,0.6);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border);
+    padding: 28px 18px;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    display: flex; flex-direction: column;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 36px; padding: 0 6px; }
+  .brand-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--accent), var(--teal));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: white;
+    box-shadow: 0 4px 14px var(--accent-glow);
+  }
+  .brand-text { font-weight: 800; font-size: 15px; letter-spacing: -0.02em; }
+  .brand-sub { font-size: 10px; color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase; margin-top: -2px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 9px; margin-bottom: 3px;
+    color: var(--text-dim); font-size: 13.5px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .nav-item.active {
+    background: rgba(79,140,255,0.1); color: var(--accent);
+    border-color: rgba(79,140,255,0.2); font-weight: 600;
+  }
+  .nav-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+  .sidebar-footer { margin-top: auto; padding: 14px 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-dim); }
+
+  /* Main */
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 60px; max-width: 1280px; }
+  .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; }
+  .page-header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+  .page-header p { color: var(--text-dim); font-size: 13.5px; margin-top: 4px; }
+
+  .section { margin-bottom: 44px; scroll-margin-top: 24px; }
+  .section-title {
+    font-size: 12px; font-weight: 700; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .glass {
+    background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat-card { padding: 20px 22px; position: relative; overflow: hidden; }
+  .stat-card::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+  .stat-value { font-size: 26px; font-weight: 800; font-family: 'Manrope'; letter-spacing: -0.02em; }
+  .stat-label { font-size: 11.5px; color: var(--text-dim); margin-top: 4px; font-weight: 500; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; padding: 12px 18px; font-size: 10.5px; font-weight: 700;
+    color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 12px 18px; font-size: 13.5px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr td { transition: background 0.12s; }
+  tbody tr:hover td { background: rgba(255,255,255,0.025); }
+  .empty-row td { text-align: center; padding: 32px; color: var(--text-dim); font-size: 13px; }
+
+  /* Badges */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.02em; border: 1px solid transparent;
+  }
+  .badge-hot { background: rgba(244,63,94,0.14); color: #fb7185; border-color: rgba(244,63,94,0.25); }
+  .badge-cold { background: rgba(255,255,255,0.05); color: var(--text-dim); }
+  .badge-new { background: rgba(79,140,255,0.14); color: #7ca8ff; border-color: rgba(79,140,255,0.25); }
+  .badge-contacted { background: rgba(245,165,36,0.14); color: #fbbf50; border-color: rgba(245,165,36,0.25); }
+  .badge-qualified { background: rgba(20,184,166,0.14); color: #2dd4bf; border-color: rgba(20,184,166,0.25); }
+  .badge-won { background: rgba(34,197,94,0.16); color: #4ade80; border-color: rgba(34,197,94,0.28); }
+  .badge-lost { background: rgba(244,63,94,0.14); color: #fb7185; border-color: rgba(244,63,94,0.25); }
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 7px; font-size: 11px; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--teal)); color: white;
+  }
+
+  /* Buttons & inputs */
+  .btn {
+    background: var(--accent); color: white; border: none;
+    padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    font-size: 12.5px; font-weight: 600; transition: all 0.15s;
+    box-shadow: 0 2px 10px rgba(79,140,255,0.15);
+  }
+  .btn:hover { background: #3d7be0; transform: translateY(-1px); box-shadow: 0 4px 14px var(--accent-glow); }
+  .btn-danger { background: rgba(244,63,94,0.15); color: #fb7185; border: 1px solid rgba(244,63,94,0.3); box-shadow: none; }
+  .btn-danger:hover { background: rgba(244,63,94,0.25); transform: none; }
+  .btn-ghost { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border-light); box-shadow: none; }
+  .btn-ghost:hover { background: rgba(255,255,255,0.1); transform: none; }
+  .btn-sm { padding: 5px 11px; font-size: 11.5px; }
+
+  input[type=text], input[type=number], select {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border-light);
+    color: var(--text); padding: 9px 12px; border-radius: 8px; font-size: 13px;
+    font-family: inherit;
+  }
+  input::placeholder { color: var(--text-dim); }
+  input:focus, select:focus { outline: none; border-color: var(--accent); background: rgba(79,140,255,0.06); }
+  select option { background: var(--panel); color: var(--text); }
+  select.stage-select { font-size: 11.5px; padding: 5px 8px; }
+  .val-input { width: 78px; padding: 5px 8px; font-size: 12px; }
+
+  .form-row {
+    padding: 18px 22px; margin-top: 12px;
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  }
+  .checkbox-wrap { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-dim); }
+  .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .inline-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: var(--text-dim); }
+  .inline-controls input { width: 56px; }
+
+  #perfPanel { margin-top: 14px; padding: 20px 22px; display: none; }
+  #perfPanel .perf-name { font-size: 16px; font-weight: 700; font-family: 'Manrope'; }
+  #perfPanel .perf-meta { color: var(--text-dim); font-size: 12.5px; margin: 6px 0 12px; }
+  #perfPanel ul { list-style: none; }
+  #perfPanel li {
+    padding: 8px 0; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-dim);
+  }
+  #perfPanel li:first-child { border-top: none; }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand">
+    <div class="brand-icon">B2B</div>
+    <div>
+      <div class="brand-text">Pipeline</div>
+      <div class="brand-sub">Sales OS</div>
+    </div>
+  </div>
+  <div class="nav-item active" onclick="scrollToSection('leads')"><span class="nav-dot"></span> Leads</div>
+  <div class="nav-item" onclick="scrollToSection('reps')"><span class="nav-dot"></span> Sales Reps</div>
+  <div class="nav-item" onclick="scrollToSection('analytics')"><span class="nav-dot"></span> Analytics</div>
+  <div class="nav-item" onclick="scrollToSection('priority')"><span class="nav-dot"></span> Priority Score</div>
+  <div class="nav-item" onclick="scrollToSection('overdue')"><span class="nav-dot"></span> Follow-ups</div>
+  <div class="sidebar-footer">B2B Lead Pipeline<br>Connected to MySQL</div>
+</div>
+
+<div class="main">
+
+  <div class="page-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Live view of your sales pipeline</p>
+    </div>
+  </div>
+
+  <div class="section" id="leads">
+    <div class="section-title">Leads</div>
+    <div class="glass">
+      <table id="leadsTable">
+        <tr><th>ID</th><th>Company</th><th>Contact</th><th>Value</th><th>Stage</th><th>Priority</th><th>Assigned Rep</th><th></th></tr>
+      </table>
+    </div>
+    <div class="glass form-row">
+      <input type="text" id="companyName" placeholder="Company name">
+      <input type="text" id="contactName" placeholder="Contact name">
+      <input type="text" id="phone" placeholder="Phone">
+      <input type="number" id="dealValue" placeholder="Deal value">
+      <label class="checkbox-wrap"><input type="checkbox" id="hot"> Hot lead</label>
+      <button class="btn" onclick="addLead()">Add Lead</button>
+    </div>
+  </div>
+
+  <div class="section" id="reps">
+    <div class="section-title">Sales Reps</div>
+    <div class="glass">
+      <table id="repsTable">
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>Department</th><th></th></tr>
+      </table>
+    </div>
+    <div class="glass form-row">
+      <input type="text" id="repName" placeholder="Rep name">
+      <input type="text" id="repEmail" placeholder="Email">
+      <input type="text" id="repDept" placeholder="Department">
+      <button class="btn" onclick="addRep()">Add Rep</button>
+    </div>
+    <div id="perfPanel" class="glass"></div>
+  </div>
+
+  <div class="section" id="analytics">
+    <div class="section-title">Pipeline Analytics
+      <button class="btn btn-ghost btn-sm" onclick="loadAnalytics()">Refresh</button>
+    </div>
+    <div class="stats-grid" id="statsGrid"></div>
+  </div>
+
+  <div class="section" id="priority">
+    <div class="section-title">Leads by Priority Score
+      <button class="btn btn-ghost btn-sm" onclick="loadPriority()">Refresh</button>
+    </div>
+    <div class="glass">
+      <table id="priorityTable">
+        <tr><th>Rank</th><th>Company</th><th>Score</th><th>Stage</th><th>Priority</th></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="overdue">
+    <div class="section-title">Overdue Follow-ups</div>
+    <div class="inline-controls">
+      Flag leads not contacted in <input type="number" id="overdueDays" value="3"> days
+      <button class="btn btn-ghost btn-sm" onclick="loadOverdue()">Check</button>
+    </div>
+    <div class="glass">
+      <table id="overdueTable">
+        <tr><th>ID</th><th>Company</th><th>Stage</th><th>Days Since Contact</th><th></th></tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = "http://localhost:8080";
+let allReps = [];
+
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: "smooth", block: "start" });
+  document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
+  event.currentTarget.classList.add("active");
+}
+
+function stageBadge(stage) {
+  const map = { NEW: "badge-new", CONTACTED: "badge-contacted", QUALIFIED: "badge-qualified", WON: "badge-won", LOST: "badge-lost" };
+  return `<span class="badge ${map[stage] || "badge-new"}">${stage}</span>`;
+}
+function hotBadge(hot) {
+  return hot ? `<span class="badge badge-hot">HOT</span>` : `<span class="badge badge-cold">-</span>`;
+}
+function stageOptions(current) {
+  const stages = ["NEW", "CONTACTED", "QUALIFIED", "WON", "LOST"];
+  return stages.map(s => `<option value="${s}" ${s===current?"selected":""}>${s}</option>`).join("");
+}
+function repOptions(currentRepId) {
+  let opts = `<option value="">Unassigned</option>`;
+  allReps.forEach(r => {
+    opts += `<option value="${r.repId}" ${currentRepId===r.repId?"selected":""}>${r.name}</option>`;
+  });
+  return opts;
+}
+
+async function loadLeads() {
+  const res = await fetch(API + "/leads");
+  const leads = await res.json();
+  const table = document.getElementById("leadsTable");
+  table.innerHTML = "<tr><th>ID</th><th>Company</th><th>Contact</th><th>Value</th><th>Stage</th><th>Priority</th><th>Assigned Rep</th><th></th></tr>";
+  if (leads.length === 0) {
+    table.innerHTML += `<tr class="empty-row"><td colspan="8">No leads yet. Add your first lead below.</td></tr>`;
+    return;
+  }
+  leads.forEach(l => {
+    table.innerHTML += `<tr>
+      <td>${l.leadId}</td>
+      <td><strong>${l.companyName}</strong></td>
+      <td>${l.contactName||"-"}</td>
+      <td>
+        <input class="val-input" type="number" id="val-${l.leadId}" value="${l.dealValue}">
+        <button class="btn btn-ghost btn-sm" onclick="updateValue(${l.leadId})">Save</button>
+      </td>
+      <td>
+        <select class="stage-select" onchange="updateStage(${l.leadId}, this.value)">
+          ${stageOptions(l.stage)}
+        </select>
+      </td>
+      <td>${hotBadge(l.hot)}</td>
+      <td>
+        <select class="stage-select" onchange="assignRep(${l.leadId}, this.value)">
+          ${repOptions(l.repId)}
+        </select>
+      </td>
+      <td class="row-actions">
+        <button class="btn btn-danger btn-sm" onclick="deleteLead(${l.leadId})">Delete</button>
+      </td></tr>`;
+  });
+}
+
+async function loadReps() {
+  const res = await fetch(API + "/reps");
+  allReps = await res.json();
+  const table = document.getElementById("repsTable");
+  table.innerHTML = "<tr><th>ID</th><th>Name</th><th>Email</th><th>Department</th><th></th></tr>";
+  if (allReps.length === 0) {
+    table.innerHTML += `<tr class="empty-row"><td colspan="5">No sales reps yet.</td></tr>`;
+    return;
+  }
+  allReps.forEach(r => {
+    table.innerHTML += `<tr>
+      <td>${r.repId}</td><td><strong>${r.name}</strong></td><td>${r.email||"-"}</td><td>${r.department||"-"}</td>
+      <td class="row-actions">
+        <button class="btn btn-ghost btn-sm" onclick="viewPerformance(${r.repId})">Performance</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteRep(${r.repId})">Delete</button>
+      </td></tr>`;
+  });
+  loadLeads();
+}
+
+async function viewPerformance(repId) {
+  const res = await fetch(API + "/reps/" + repId + "/performance");
+  const data = await res.json();
+  const panel = document.getElementById("perfPanel");
+  panel.style.display = "block";
+
+  let leadRows = data.leads.map(l => `<li>${l.companyName} &nbsp;&middot;&nbsp; Rs.${l.dealValue.toLocaleString()} &nbsp;&middot;&nbsp; ${l.stage}</li>`).join("");
+  if (data.leads.length === 0) leadRows = "<li>No leads assigned yet.</li>";
+
+  panel.innerHTML = `
+    <div class="perf-name">${data.name}</div>
+    <div class="perf-meta">${data.department||"-"} &nbsp;&middot;&nbsp; ${data.activeLeadCount} active leads &nbsp;&middot;&nbsp; Rs.${data.totalPipelineValue.toLocaleString()} pipeline value</div>
+    <ul>${leadRows}</ul>`;
+}
+
+async function loadAnalytics() {
+  const res = await fetch(API + "/leads/analytics");
+  const data = await res.json();
+  document.getElementById("statsGrid").innerHTML = `
+    <div class="glass stat-card"><div class="stat-value">${data.totalLeads}</div><div class="stat-label">Total Leads</div></div>
+    <div class="glass stat-card"><div class="stat-value">Rs.${data.openPipelineValue.toLocaleString()}</div><div class="stat-label">Open Pipeline</div></div>
+    <div class="glass stat-card"><div class="stat-value">Rs.${data.wonValue.toLocaleString()}</div><div class="stat-label">Won Value</div></div>
+    <div class="glass stat-card"><div class="stat-value">${data.winRate}%</div><div class="stat-label">Win Rate</div></div>
+  `;
+}
+
+async function loadPriority() {
+  const res = await fetch(API + "/leads/priority");
+  const leads = await res.json();
+  const table = document.getElementById("priorityTable");
+  table.innerHTML = "<tr><th>Rank</th><th>Company</th><th>Score</th><th>Stage</th><th>Priority</th></tr>";
+  if (leads.length === 0) {
+    table.innerHTML += `<tr class="empty-row"><td colspan="5">No leads to rank yet.</td></tr>`;
+    return;
+  }
+  leads.forEach((l, i) => {
+    table.innerHTML += `<tr>
+      <td><span class="rank-badge">${i+1}</span></td><td><strong>${l.companyName}</strong></td>
+      <td>${l.priorityScore}</td><td>${stageBadge(l.stage)}</td><td>${hotBadge(l.hot)}</td></tr>`;
+  });
+}
+
+async function loadOverdue() {
+  const days = document.getElementById("overdueDays").value || 3;
+  const res = await fetch(API + "/leads/overdue?days=" + days);
+  const leads = await res.json();
+  const table = document.getElementById("overdueTable");
+  table.innerHTML = "<tr><th>ID</th><th>Company</th><th>Stage</th><th>Days Since Contact</th><th></th></tr>";
+  if (leads.length === 0) {
+    table.innerHTML += `<tr class="empty-row"><td colspan="5">No overdue follow-ups. Everything on track.</td></tr>`;
+    return;
+  }
+  leads.forEach(l => {
+    table.innerHTML += `<tr>
+      <td>${l.leadId}</td><td><strong>${l.companyName}</strong></td><td>${stageBadge(l.stage)}</td>
+      <td>${l.daysSinceContact} days</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="markContacted(${l.leadId})">Mark Contacted</button></td></tr>`;
+  });
+}
+
+async function markContacted(id) {
+  await fetch(API + "/leads/" + id + "/contact", { method: "PUT" });
+  loadOverdue();
+  loadPriority();
+}
+
+async function updateStage(id, newStage) {
+  await fetch(API + "/leads/" + id + "/stage", {
+    method: "PUT",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ stage: newStage })
+  });
+  loadAnalytics();
+  loadPriority();
+  loadOverdue();
+}
+
+async function updateValue(id) {
+  const newValue = parseFloat(document.getElementById("val-" + id).value) || 0;
+  await fetch(API + "/leads/" + id + "/value", {
+    method: "PUT",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ dealValue: newValue })
+  });
+  loadAnalytics();
+  loadPriority();
+}
+
+async function assignRep(leadId, repId) {
+  if (repId === "") {
+    await fetch(API + "/leads/" + leadId + "/unassign", { method: "PUT" });
+  } else {
+    await fetch(API + "/leads/" + leadId + "/assign/" + repId, { method: "PUT" });
+  }
+}
+
+async function addLead() {
+  const company = document.getElementById("companyName").value;
+  if (!company) { alert("Company name is required"); return; }
+  await fetch(API + "/leads", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      companyName: company,
+      contactName: document.getElementById("contactName").value,
+      phone: document.getElementById("phone").value,
+      dealValue: parseFloat(document.getElementById("dealValue").value) || 0,
+      hot: document.getElementById("hot").checked,
+      stage: "NEW"
+    })
+  });
+  document.getElementById("companyName").value = "";
+  document.getElementById("contactName").value = "";
+  document.getElementById("phone").value = "";
+  document.getElementById("dealValue").value = "";
+  document.getElementById("hot").checked = false;
+  loadLeads();
+  loadAnalytics();
+  loadPriority();
+}
+
+async function addRep() {
+  const name = document.getElementById("repName").value;
+  if (!name) { alert("Rep name is required"); return; }
+  await fetch(API + "/reps", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      email: document.getElementById("repEmail").value,
+      department: document.getElementById("repDept").value
+    })
+  });
+  document.getElementById("repName").value = "";
+  document.getElementById("repEmail").value = "";
+  document.getElementById("repDept").value = "";
+  loadReps();
+}
+
+async function deleteLead(id) {
+  await fetch(API + "/leads/" + id, { method: "DELETE" });
+  loadLeads(); loadAnalytics(); loadPriority(); loadOverdue();
+}
+async function deleteRep(id) {
+  await fetch(API + "/reps/" + id, { method: "DELETE" });
+  loadReps();
+}
+
+async function init() {
+  await loadReps();
+  await loadLeads();
+  loadAnalytics();
+  loadPriority();
+  loadOverdue();
+}
+init();
+</script>
+</body>
+</html>

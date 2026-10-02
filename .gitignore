@@ -1,0 +1,16 @@
+# Build output
+target/
+*.class
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Secrets and local config
+.env
+application-local.properties
+
+# Misc
+HELP.md
+.github/modernize/
